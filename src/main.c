@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: iburel <iburel@student.42.fr>              +#+  +:+       +#+        */
+/*   By: niragne <niragne@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/14 11:17:01 by niragne           #+#    #+#             */
-/*   Updated: 2018/02/22 16:08:33 by iburel           ###   ########.fr       */
+/*   Updated: 2018/02/22 17:35:19 by niragne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ int    main()
 	SDL_Event	event;
 	GLuint		vao;
 	GLuint		prog;
+	GLuint		prog_cursor;
 	t_mat4		projection;
 	t_mat4		modelview;
 	t_mat4		translate;
@@ -33,15 +34,16 @@ int    main()
 	GLuint		id_texture;
 	GLenum		format;
 	GLenum		format2;
+	float		speed;
 
 	// Camera
 	t_cam camera;
 
-	camera.pos = (t_vec3){2, 2, 2};
+	camera.pos = (t_vec3){3.0, 3.0, 3.0};
 	camera.target = (t_vec3){0.0, 0.0, 0.0};
 	camera.vertical = (t_vec3){0.0, 1.0, 0.0};
-	camera.phi = 0.f;
-	camera.teta = 0.f;
+	camera.phi = -90.f;
+	camera.teta = -135.f;
 
 	int 		done = 0;
 	float		souri[2] = {0, 0};
@@ -53,15 +55,17 @@ int    main()
 //	projection[0] = (float)WIN_Y / (float)WIN_X;
 //	projection[10] = 0.1f;
 	translate = mat4_id_new();
-	projection = mat4_perspective((90.f / 360.f * 2.f * M_PI), ((float)WIN_X / (float)WIN_Y), 1.f, 100.f);
+	projection = mat4_perspective((80.f / 360.f * 2.f * M_PI), ((float)WIN_X / (float)WIN_Y), 0.1f, 100.f);
+	//projection = mat4_vec3_mult(projection, ((t_vec3){1, 1, -1.00}));
 	modelview = mat4_id_new();
 	prog = create_prog("shader/truc.vert", "shader/truc.frag");
+	prog_cursor = create_prog("shader/cursor.vert", "shader/cursor.frag");
 	look = mat4_id_new();
 	key = (Uint8 *)SDL_GetKeyboardState(NULL);
 	SDL_Surface *texture = IMG_Load("truc.jpg");
 	glGenTextures(1, &id_texture);
 	glBindTexture(GL_TEXTURE_2D, id_texture);
-	cam_settarget(&camera, camera.target);
+	//cam_settarget(&camera, camera.target);
 	if(texture->format->BytesPerPixel == 3)
 	{
 		format = GL_RGB;
@@ -119,45 +123,19 @@ int    main()
 				cam_orient(&camera, event.motion.xrel, event.motion.yrel, 0.5);	
 			}
 		}
+
 		if (key[SDL_SCANCODE_W])
-			mat4_rotate(&modelview, vec3_normalize((t_vec3){1.f, 0.f, 0.f}), M_PI / SPEED);
-		if (key[SDL_SCANCODE_S])
-			mat4_rotate(&modelview, vec3_normalize((t_vec3){-1.f, 0.f, 0.f}), M_PI / SPEED);
-		if (key[SDL_SCANCODE_D])
-			mat4_rotate(&modelview, vec3_normalize((t_vec3){0.f, 1.f, 0.f}), M_PI / SPEED);
+			cam_move_up(&camera, speed);
 		if (key[SDL_SCANCODE_A])
-			mat4_rotate(&modelview, vec3_normalize((t_vec3){0.f, -1.f, 0.f}), M_PI / SPEED);
-		if (key[SDL_SCANCODE_Q])
-			mat4_rotate(&modelview, vec3_normalize((t_vec3){0.f, 0.f, 1.f}), M_PI / SPEED);
-		if (key[SDL_SCANCODE_E])
-			mat4_rotate(&modelview, vec3_normalize((t_vec3){0.f, 0.f, -1.f}), M_PI / SPEED);
-
-		if (key[SDL_SCANCODE_I])
-			modelview = mat4_vec3_mult(modelview, ((t_vec3){1.01, 1.01, 1.01}));
-		if (key[SDL_SCANCODE_O])
-			modelview = mat4_vec3_mult(modelview, ((t_vec3){0.99, 0.99, 0.99}));
-		if (key[SDL_SCANCODE_RIGHT])
-			mat4_translate(&translate, (t_vec3){-0.3f, 0.f, 0.f});
-
-		if (key[SDL_SCANCODE_LEFT])
-			mat4_translate(&translate, (t_vec3){0.3f, 0.f, 0.f});
-		if (key[SDL_SCANCODE_UP])
-			mat4_translate(&translate, (t_vec3){0.f, 0.3f, 0.f});
-		if (key[SDL_SCANCODE_DOWN])
-			mat4_translate(&translate, (t_vec3){0.f, -0.3f, 0.f});
-		if (key[SDL_SCANCODE_K])
-			mat4_translate(&translate, (t_vec3){0.f, 0.f, 0.3f});
-		if (key[SDL_SCANCODE_L])
-			mat4_translate(&translate, (t_vec3){0.f, 0.f, -0.3f});
-
-		if (key[SDL_SCANCODE_T])
-			cam_move_up(&camera, 0.1);
-		if (key[SDL_SCANCODE_F])
-			cam_move_left(&camera, 0.1);
-		if (key[SDL_SCANCODE_G])
-			cam_move_down(&camera, 0.1);
-		if (key[SDL_SCANCODE_H])
-			cam_move_right(&camera, 0.1);
+			cam_move_left(&camera, speed);
+		if (key[SDL_SCANCODE_S])
+			cam_move_down(&camera, speed);
+		if (key[SDL_SCANCODE_D])
+			cam_move_right(&camera, speed);
+		if (key[SDL_SCANCODE_LSHIFT])
+			speed = 0.2;
+		else
+			speed = 0.1;
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		look = cam_lookat(&camera);
@@ -175,6 +153,9 @@ int    main()
 					glDrawArrays(GL_TRIANGLES, 0, 36);
 				glBindTexture(GL_TEXTURE_2D, 0);
 			glBindVertexArray(0);
+		glUseProgram(0);
+		glUseProgram(prog_cursor);
+			glDrawArrays(GL_POINTS, 0, 3);
 		glUseProgram(0);
 		SDL_GL_SwapWindow(win);
 		t1 = SDL_GetTicks();

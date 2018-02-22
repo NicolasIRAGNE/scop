@@ -6,7 +6,7 @@
 /*   By: niragne <niragne@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/18 13:42:57 by niragne           #+#    #+#             */
-/*   Updated: 2018/02/19 14:57:28 by niragne          ###   ########.fr       */
+/*   Updated: 2018/02/22 17:27:03 by niragne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,6 @@ void    cam_move_right(t_cam *cam, float speed)
     tmp.x = cam->lateral.x * speed;
     tmp.y = cam->lateral.y * speed;
     tmp.z = cam->lateral.z * speed;
-    printf("%f %f\n", tmp.x, cam->lateral.x);
     cam->pos = vec3_sub(cam->pos, tmp);
     cam->target = vec3_add(cam->pos, cam->orientation);
 }

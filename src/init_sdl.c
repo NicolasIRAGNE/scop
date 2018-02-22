@@ -6,7 +6,7 @@
 /*   By: niragne <niragne@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/14 11:22:25 by niragne           #+#    #+#             */
-/*   Updated: 2018/02/18 17:40:56 by niragne          ###   ########.fr       */
+/*   Updated: 2018/02/22 17:26:08 by niragne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ SDL_Window  *init_sdl(void)
     }
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+    SDL_ShowCursor(SDL_DISABLE);
     //SDL_GL_SetSwapInterval(0);
     return (ret);
 }
