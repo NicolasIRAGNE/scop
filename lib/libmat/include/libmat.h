@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   libmat.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: niragne <niragne@student.42.fr>            +#+  +:+       +#+        */
+/*   By: iburel <iburel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/14 14:45:48 by niragne           #+#    #+#             */
-/*   Updated: 2018/02/19 17:54:37 by niragne          ###   ########.fr       */
+/*   Updated: 2018/02/22 14:43:40 by iburel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ t_mat4      mat4_new(void);
 t_mat3      mat3_mult(t_mat3 a, t_mat3 b);
 t_mat4      mat4_mult(t_mat4 a, t_mat4 b);
 t_mat3      mat3_id_new(void);
-t_mat3      mat4_id_new(void);
+t_mat4      mat4_id_new(void);
 void        mat4_rotate(t_mat4 *mat, t_vec3 v, float angle);
 t_vec3      vec3_normalize(t_vec3 v);
 t_mat4      mat4_vec3_mult(t_mat4 m, t_vec3 v);
