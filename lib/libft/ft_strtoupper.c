@@ -1,0 +1,28 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_strtoupper.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dchirol <dchirol@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2017/05/31 12:21:22 by dchirol           #+#    #+#             */
+/*   Updated: 2017/05/31 13:49:55 by dchirol          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "libft.h"
+
+char	*ft_strtoupper(char *str)
+{
+	int		i;
+	char	*new;
+
+	i = 0;
+	new = ft_strnew(ft_strlen(str));
+	while (str[i])
+	{
+		new[i] = ft_toupper(str[i]);
+		i++;
+	}
+	return (new);
+}
