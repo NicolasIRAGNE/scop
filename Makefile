@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: iburel <iburel@student.42.fr>              +#+  +:+       +#+         #
+#    By: niragne <niragne@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/02/14 17:55:23 by niragne           #+#    #+#              #
-#    Updated: 2018/02/22 15:33:16 by iburel           ###   ########.fr        #
+#    Updated: 2018/03/07 15:29:02 by niragne          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -44,7 +44,7 @@ LIBCAM_DIR 				=	$(LIB_PATH)/libcam
 LIBCAM					=	$(LIBCAM_DIR)/libcam.a
 LIBCAM_INCL				=	$(LIBCAM_DIR)/include
 
-SRCS = init_sdl.c init_buffer.c create_prog.c shader_build.c main.c
+SRCS = init_sdl.c init_buffer.c init_skybox_buffer.c create_prog.c shader_build.c load_bmp.c main.c
 
 SRC = $(addprefix src/, $(SRCS))
 

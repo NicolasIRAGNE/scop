@@ -9,6 +9,6 @@ uniform mat4 look;
 
 void main()
 {
-    gl_Position = projection * look * modelview * vec4(in_Position, 1.0);
+    gl_Position = projection * look * translate * modelview * vec4(in_Position, 1.0);
     coordTexture = in_Position;
 }

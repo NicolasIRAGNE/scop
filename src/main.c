@@ -6,23 +6,26 @@
 /*   By: niragne <niragne@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/14 11:17:01 by niragne           #+#    #+#             */
-/*   Updated: 2018/02/22 17:35:19 by niragne          ###   ########.fr       */
+/*   Updated: 2018/03/07 16:22:57 by niragne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_scop.h"
 
-GLuint	main_vbo;
+GLuint	skybox_vbo;
+GLuint	main_ebo;
 
 # define SPEED 64.f
 
-int    main()
+int    main(int ac, char **av)
 {
     SDL_Window	*win;
 	SDL_Event	event;
 	GLuint		vao;
+	GLuint		vao_skybox;
 	GLuint		prog;
 	GLuint		prog_cursor;
+	GLuint		prog_skybox;
 	t_mat4		projection;
 	t_mat4		modelview;
 	t_mat4		translate;
@@ -35,62 +38,99 @@ int    main()
 	GLenum		format;
 	GLenum		format2;
 	float		speed;
+	SDL_Surface	*skybox_texture[6];
+	GLuint		skybox_texture_id;
+	GLuint		skybox_location;
 
 	// Camera
 	t_cam camera;
 
 	camera.pos = (t_vec3){3.0, 3.0, 3.0};
 	camera.target = (t_vec3){0.0, 0.0, 0.0};
-	camera.vertical = (t_vec3){0.0, 1.0, 0.0};
+	camera.vertical = (t_vec3){0.0, 2.0, 0.0};
 	camera.phi = -90.f;
 	camera.teta = -135.f;
 
 	int 		done = 0;
 	float		souri[2] = {0, 0};
 
+	if (ac != 2)
+		return (0);
 	if (!(win = init_sdl()))
 		return (0);
 	vao = init_buffer();
+	vao_skybox = init_skybox_buffer();
 //	projection = mat4_id_new();
 //	projection[0] = (float)WIN_Y / (float)WIN_X;
 //	projection[10] = 0.1f;
 	translate = mat4_id_new();
-	projection = mat4_perspective((80.f / 360.f * 2.f * M_PI), ((float)WIN_X / (float)WIN_Y), 0.1f, 100.f);
+	projection = mat4_perspective((70.f / 360.f * 2.f * M_PI), ((float)WIN_X / (float)WIN_Y), 0.1f, 200.f);
 	//projection = mat4_vec3_mult(projection, ((t_vec3){1, 1, -1.00}));
 	modelview = mat4_id_new();
 	prog = create_prog("shader/truc.vert", "shader/truc.frag");
+	if (prog == UINT_MAX)
+		exit(printf("failed to create prog\n"));
 	prog_cursor = create_prog("shader/cursor.vert", "shader/cursor.frag");
+	if (prog_cursor == UINT_MAX)
+		exit(printf("failed to create prog_cursor\n"));
+	prog_skybox = create_prog("shader/skybox.vert", "shader/skybox.frag");
+	if (prog_skybox == UINT_MAX)
+		exit(printf("failed to create prog_skybox\n"));
 	look = mat4_id_new();
 	key = (Uint8 *)SDL_GetKeyboardState(NULL);
-	SDL_Surface *texture = IMG_Load("truc.jpg");
+	SDL_Surface *texture = IMG_Load(av[1]);
 	glGenTextures(1, &id_texture);
 	glBindTexture(GL_TEXTURE_2D, id_texture);
-	//cam_settarget(&camera, camera.target);
-	if(texture->format->BytesPerPixel == 3)
-	{
-		format = GL_RGB;
-		if(texture->format->Rmask == 0xff)
-    		format2 = GL_RGB;
-    	else
-    		format2 = GL_BGR;
-	}
-	else if(texture->format->BytesPerPixel == 4)
-	{    
-		format = GL_RGBA;
-		if(texture->format->Rmask == 0xff)
-			format2 = GL_RGBA;
-    	else
-    		format2 = GL_BGRA;
-	}
-	if (!texture)
-	{
-		printf("%s\n", SDL_GetError());
-		exit(1);
-	}
-	glTexImage2D(GL_TEXTURE_2D, 0, format, texture->w, texture->h, 0, format2, GL_UNSIGNED_BYTE, texture->pixels);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		cam_settarget(&camera, camera.target);
+		if (texture->format->BytesPerPixel == 3)
+		{
+			format = GL_RGB;
+			if (texture->format->Rmask == 0xff)
+	    		format2 = GL_RGB;
+    		else
+    			format2 = GL_BGR;
+		}
+		else if (texture->format->BytesPerPixel == 4)
+		{    
+			format = GL_RGBA;
+			if (texture->format->Rmask == 0xff)
+				format2 = GL_RGBA;
+    		else
+    			format2 = GL_BGRA;
+		}
+		if (!texture)
+		{
+			printf("%s\n", SDL_GetError());
+			exit(1);
+		}
+		glTexImage2D(GL_TEXTURE_2D, 0, format, texture->w, texture->h, 0, format2, GL_UNSIGNED_BYTE, texture->pixels);
+    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glBindTexture(GL_TEXTURE_2D, 0);
+	skybox_texture[0] = load_bmp("skybox/XP.bmp");
+	skybox_texture[1] = load_bmp("skybox/XN.bmp");
+	skybox_texture[2] = load_bmp("skybox/YP.bmp");
+	skybox_texture[3] = load_bmp("skybox/YN.bmp");
+	skybox_texture[4] = load_bmp("skybox/ZP.bmp");
+	skybox_texture[5] = load_bmp("skybox/ZN.bmp");
+	if (!skybox_texture[0] || !skybox_texture[1] || !skybox_texture[2] || !skybox_texture[3] || !skybox_texture[4] || !skybox_texture[5])
+		exit(1);
+	glEnable(GL_TEXTURE_CUBE_MAP);
+	glGenTextures(1, &skybox_texture_id);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_texture_id);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	int i = 0;
+	while (i < 6)
+	{
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, skybox_texture[i]->w, skybox_texture[i]->h, 0, GL_BGR, GL_UNSIGNED_BYTE, skybox_texture[i]->pixels);
+		i++;
+	}
+	skybox_location = glGetUniformLocation(prog_skybox, "cubeMap");
+	glUniform1i(skybox_location, 0);
 	while (!done)
 	{
 		
@@ -124,19 +164,31 @@ int    main()
 			}
 		}
 
+			translate[12] = camera.pos.x;
+			translate[13] = camera.pos.y;
+			translate[14] = camera.pos.z;
 		if (key[SDL_SCANCODE_W])
+		{
 			cam_move_up(&camera, speed);
+		}
 		if (key[SDL_SCANCODE_A])
+		{
 			cam_move_left(&camera, speed);
+		}
 		if (key[SDL_SCANCODE_S])
+		{
 			cam_move_down(&camera, speed);
+		}
 		if (key[SDL_SCANCODE_D])
+		{
 			cam_move_right(&camera, speed);
+		}
 		if (key[SDL_SCANCODE_LSHIFT])
 			speed = 0.2;
 		else
 			speed = 0.1;
-
+			
+		//SDL_WarpMouseInWindow(win, WIN_X / 2, WIN_Y / 2);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		look = cam_lookat(&camera);
 		//free(modelview);
@@ -149,14 +201,25 @@ int    main()
 				glUniformMatrix4fv(glGetUniformLocation(prog, "modelview"), 1, GL_FALSE, modelview);
 				glUniformMatrix4fv(glGetUniformLocation(prog, "translate"), 1, GL_FALSE, translate);
 				glUniformMatrix4fv(glGetUniformLocation(prog, "look"), 1, GL_FALSE, look);
-				glBindTexture(GL_TEXTURE_2D, id_texture);
-					glDrawArrays(GL_TRIANGLES, 0, 36);
-				glBindTexture(GL_TEXTURE_2D, 0);
+				glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_texture_id);
+					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, main_ebo);
+						glDrawElements(GL_TRIANGLE_STRIP, 14, GL_UNSIGNED_INT, (GLvoid*)0);
+					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+					//glDrawArrays(GL_TRIANGLES, 0, 72);
+				glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 			glBindVertexArray(0);
-		glUseProgram(0);
 		glUseProgram(prog_cursor);
 			glDrawArrays(GL_POINTS, 0, 3);
-		glUseProgram(0);
+		glUseProgram(prog_skybox);
+			glBindVertexArray(vao_skybox);
+				glUniformMatrix4fv(glGetUniformLocation(prog_skybox, "projection"), 1, GL_FALSE, projection);
+				glUniformMatrix4fv(glGetUniformLocation(prog_skybox, "modelview"), 1, GL_FALSE, modelview);
+				glUniformMatrix4fv(glGetUniformLocation(prog_skybox, "translate"), 1, GL_FALSE, translate);
+				glUniformMatrix4fv(glGetUniformLocation(prog_skybox, "look"), 1, GL_FALSE, look);
+				glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_texture_id);
+					glDrawArrays(GL_TRIANGLES, 0, 36);
+				glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+			glBindVertexArray(0);
 		SDL_GL_SwapWindow(win);
 		t1 = SDL_GetTicks();
         if (t1 - fps >= 1000)
