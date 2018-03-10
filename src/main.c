@@ -6,7 +6,7 @@
 /*   By: niragne <niragne@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/14 11:17:01 by niragne           #+#    #+#             */
-/*   Updated: 2018/03/07 16:22:57 by niragne          ###   ########.fr       */
+/*   Updated: 2018/03/10 18:37:39 by niragne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ int    main(int ac, char **av)
 	GLenum		format;
 	GLenum		format2;
 	float		speed;
-	SDL_Surface	*skybox_texture[6];
+	t_bmp	*skybox_texture[6];
 	GLuint		skybox_texture_id;
 	GLuint		skybox_location;
 
@@ -126,7 +126,7 @@ int    main(int ac, char **av)
 	int i = 0;
 	while (i < 6)
 	{
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, skybox_texture[i]->w, skybox_texture[i]->h, 0, GL_BGR, GL_UNSIGNED_BYTE, skybox_texture[i]->pixels);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, skybox_texture[i]->info.w, skybox_texture[i]->info.h, 0, GL_RGB, GL_UNSIGNED_BYTE, skybox_texture[i]->pixels);
 		i++;
 	}
 	skybox_location = glGetUniformLocation(prog_skybox, "cubeMap");
