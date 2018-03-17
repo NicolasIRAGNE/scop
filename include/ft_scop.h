@@ -6,7 +6,7 @@
 /*   By: niragne <niragne@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/14 11:18:38 by niragne           #+#    #+#             */
-/*   Updated: 2018/03/10 17:53:27 by niragne          ###   ########.fr       */
+/*   Updated: 2018/03/17 18:16:25 by niragne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,11 @@
 # include <fcntl.h>
 # include <limits.h>
 # include "SDL2/SDL.h"
-#include "SDL2/SDL_image.h"
+# include "SDL2/SDL_image.h"
 # include <OpenGL/gl3.h>
 # include <CoreFoundation/CoreFoundation.h>
+# include <sys/mman.h>
+# include <sys/stat.h>
 # define GL3_PROTOTYPE 1
 
 # define WIN_X 2560
@@ -73,7 +75,7 @@ struct	s_bmp
 {
 	t_bmp_header	header;
 	t_bmp_info		info;
-	t_uint32		*pixels;
+	void		*pixels;
 };
 
 #endif

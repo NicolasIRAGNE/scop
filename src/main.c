@@ -6,7 +6,7 @@
 /*   By: niragne <niragne@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/14 11:17:01 by niragne           #+#    #+#             */
-/*   Updated: 2018/03/10 18:37:39 by niragne          ###   ########.fr       */
+/*   Updated: 2018/03/17 19:08:32 by niragne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,6 @@ int    main(int ac, char **av)
 	Uint32		fps;
 	Uint32		frame = 0;
 	GLuint		id_texture;
-	GLenum		format;
-	GLenum		format2;
 	float		speed;
 	t_bmp	*skybox_texture[6];
 	GLuint		skybox_texture_id;
@@ -58,6 +56,7 @@ int    main(int ac, char **av)
 		return (0);
 	if (!(win = init_sdl()))
 		return (0);
+		glEnable(GL_TEXTURE_CUBE_MAP);
 	vao = init_buffer();
 	vao_skybox = init_skybox_buffer();
 //	projection = mat4_id_new();
@@ -79,43 +78,35 @@ int    main(int ac, char **av)
 	look = mat4_id_new();
 	key = (Uint8 *)SDL_GetKeyboardState(NULL);
 	SDL_Surface *texture = IMG_Load(av[1]);
+	cam_settarget(&camera, camera.target);
 	glGenTextures(1, &id_texture);
-	glBindTexture(GL_TEXTURE_2D, id_texture);
-		cam_settarget(&camera, camera.target);
-		if (texture->format->BytesPerPixel == 3)
+	glBindTexture(GL_TEXTURE_CUBE_MAP, id_texture);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		int j = 0;
+		while (j < 6)
 		{
-			format = GL_RGB;
-			if (texture->format->Rmask == 0xff)
-	    		format2 = GL_RGB;
-    		else
-    			format2 = GL_BGR;
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + j, 0, GL_RGB, texture->w, texture->h, 0, GL_BGR, GL_UNSIGNED_BYTE, texture->pixels);
+			j++;
 		}
-		else if (texture->format->BytesPerPixel == 4)
-		{    
-			format = GL_RGBA;
-			if (texture->format->Rmask == 0xff)
-				format2 = GL_RGBA;
-    		else
-    			format2 = GL_BGRA;
-		}
-		if (!texture)
-		{
-			printf("%s\n", SDL_GetError());
-			exit(1);
-		}
-		glTexImage2D(GL_TEXTURE_2D, 0, format, texture->w, texture->h, 0, format2, GL_UNSIGNED_BYTE, texture->pixels);
-    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	skybox_texture[0] = load_bmp("skybox/XP.bmp");
-	skybox_texture[1] = load_bmp("skybox/XN.bmp");
-	skybox_texture[2] = load_bmp("skybox/YP.bmp");
-	skybox_texture[3] = load_bmp("skybox/YN.bmp");
-	skybox_texture[4] = load_bmp("skybox/ZP.bmp");
-	skybox_texture[5] = load_bmp("skybox/ZN.bmp");
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	// skybox_texture[0] = load_bmp("skybox/XP.bmp");
+	// skybox_texture[1] = load_bmp("skybox/XN.bmp");
+	// skybox_texture[2] = load_bmp("skybox/YP.bmp");
+	// skybox_texture[3] = load_bmp("skybox/YN.bmp");
+	// skybox_texture[4] = load_bmp("skybox/ZP.bmp");
+	// skybox_texture[5] = load_bmp("skybox/ZN.bmp");
+	skybox_texture[0] = load_bmp("degrade.bmp");
+	skybox_texture[1] = load_bmp("degrade.bmp");
+	skybox_texture[2] = load_bmp("degrade.bmp");
+	skybox_texture[3] = load_bmp("degrade.bmp");
+	skybox_texture[4] = load_bmp("degrade.bmp");
+	skybox_texture[5] = load_bmp("degrade.bmp");
 	if (!skybox_texture[0] || !skybox_texture[1] || !skybox_texture[2] || !skybox_texture[3] || !skybox_texture[4] || !skybox_texture[5])
 		exit(1);
-	glEnable(GL_TEXTURE_CUBE_MAP);
 	glGenTextures(1, &skybox_texture_id);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_texture_id);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -126,7 +117,7 @@ int    main(int ac, char **av)
 	int i = 0;
 	while (i < 6)
 	{
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, skybox_texture[i]->info.w, skybox_texture[i]->info.h, 0, GL_RGB, GL_UNSIGNED_BYTE, skybox_texture[i]->pixels);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, skybox_texture[i]->info.w, skybox_texture[i]->info.h, 0, GL_BGR, GL_UNSIGNED_BYTE, skybox_texture[i]->pixels);
 		i++;
 	}
 	skybox_location = glGetUniformLocation(prog_skybox, "cubeMap");
@@ -201,7 +192,7 @@ int    main(int ac, char **av)
 				glUniformMatrix4fv(glGetUniformLocation(prog, "modelview"), 1, GL_FALSE, modelview);
 				glUniformMatrix4fv(glGetUniformLocation(prog, "translate"), 1, GL_FALSE, translate);
 				glUniformMatrix4fv(glGetUniformLocation(prog, "look"), 1, GL_FALSE, look);
-				glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_texture_id);
+				glBindTexture(GL_TEXTURE_CUBE_MAP, id_texture);
 					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, main_ebo);
 						glDrawElements(GL_TRIANGLE_STRIP, 14, GL_UNSIGNED_INT, (GLvoid*)0);
 					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
