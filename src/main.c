@@ -6,7 +6,7 @@
 /*   By: niragne <niragne@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/14 11:17:01 by niragne           #+#    #+#             */
-/*   Updated: 2018/03/17 19:08:32 by niragne          ###   ########.fr       */
+/*   Updated: 2018/03/19 18:03:45 by niragne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ int    main(int ac, char **av)
 	t_bmp	*skybox_texture[6];
 	GLuint		skybox_texture_id;
 	GLuint		skybox_location;
-
 	// Camera
 	t_cam camera;
 
@@ -56,8 +55,9 @@ int    main(int ac, char **av)
 		return (0);
 	if (!(win = init_sdl()))
 		return (0);
-		glEnable(GL_TEXTURE_CUBE_MAP);
-	vao = init_buffer();
+	glEnable(GL_TEXTURE_CUBE_MAP);
+	t_obj *obj = load_model("resources/bite.obj");
+	vao = init_buffer_model(obj);
 	vao_skybox = init_skybox_buffer();
 //	projection = mat4_id_new();
 //	projection[0] = (float)WIN_Y / (float)WIN_X;
@@ -75,9 +75,9 @@ int    main(int ac, char **av)
 	prog_skybox = create_prog("shader/skybox.vert", "shader/skybox.frag");
 	if (prog_skybox == UINT_MAX)
 		exit(printf("failed to create prog_skybox\n"));
-	look = mat4_id_new();
+	//look = mat4_id_new();
 	key = (Uint8 *)SDL_GetKeyboardState(NULL);
-	SDL_Surface *texture = IMG_Load(av[1]);
+	t_bmp *texture = load_bmp(av[1]);
 	cam_settarget(&camera, camera.target);
 	glGenTextures(1, &id_texture);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, id_texture);
@@ -89,22 +89,22 @@ int    main(int ac, char **av)
 		int j = 0;
 		while (j < 6)
 		{
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + j, 0, GL_RGB, texture->w, texture->h, 0, GL_BGR, GL_UNSIGNED_BYTE, texture->pixels);
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + j, 0, GL_RGB, texture->info.w, texture->info.h, 0, GL_BGR, GL_UNSIGNED_BYTE, texture->pixels);
 			j++;
 		}
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-	// skybox_texture[0] = load_bmp("skybox/XP.bmp");
-	// skybox_texture[1] = load_bmp("skybox/XN.bmp");
-	// skybox_texture[2] = load_bmp("skybox/YP.bmp");
-	// skybox_texture[3] = load_bmp("skybox/YN.bmp");
-	// skybox_texture[4] = load_bmp("skybox/ZP.bmp");
-	// skybox_texture[5] = load_bmp("skybox/ZN.bmp");
-	skybox_texture[0] = load_bmp("degrade.bmp");
-	skybox_texture[1] = load_bmp("degrade.bmp");
-	skybox_texture[2] = load_bmp("degrade.bmp");
-	skybox_texture[3] = load_bmp("degrade.bmp");
-	skybox_texture[4] = load_bmp("degrade.bmp");
-	skybox_texture[5] = load_bmp("degrade.bmp");
+	 skybox_texture[0] = load_bmp("skybox/XP.bmp");
+	 skybox_texture[1] = load_bmp("skybox/XN.bmp");
+	 skybox_texture[2] = load_bmp("skybox/YP.bmp");
+	 skybox_texture[3] = load_bmp("skybox/YN.bmp");
+	 skybox_texture[4] = load_bmp("skybox/ZP.bmp");
+	 skybox_texture[5] = load_bmp("skybox/ZN.bmp");
+	//skybox_texture[0] = load_bmp("/Users/niragne/Desktop/ASTRONAU.bmp");
+	//skybox_texture[1] = load_bmp("/Users/niragne/Desktop/ASTRONAU.bmp");
+	//skybox_texture[2] = load_bmp("/Users/niragne/Desktop/ASTRONAU.bmp");
+	//skybox_texture[3] = load_bmp("/Users/niragne/Desktop/ASTRONAU.bmp");
+	//skybox_texture[4] = load_bmp("/Users/niragne/Desktop/ASTRONAU.bmp");
+	//skybox_texture[5] = load_bmp("/Users/niragne/Desktop/ASTRONAU.bmp");
 	if (!skybox_texture[0] || !skybox_texture[1] || !skybox_texture[2] || !skybox_texture[3] || !skybox_texture[4] || !skybox_texture[5])
 		exit(1);
 	glGenTextures(1, &skybox_texture_id);
@@ -155,33 +155,37 @@ int    main(int ac, char **av)
 			}
 		}
 
-			translate[12] = camera.pos.x;
-			translate[13] = camera.pos.y;
-			translate[14] = camera.pos.z;
 		if (key[SDL_SCANCODE_W])
 		{
 			cam_move_up(&camera, speed);
+			look = cam_lookat(&camera);			
 		}
 		if (key[SDL_SCANCODE_A])
 		{
 			cam_move_left(&camera, speed);
+			look = cam_lookat(&camera);		
 		}
 		if (key[SDL_SCANCODE_S])
 		{
 			cam_move_down(&camera, speed);
+			look = cam_lookat(&camera);
 		}
 		if (key[SDL_SCANCODE_D])
 		{
 			cam_move_right(&camera, speed);
+			look = cam_lookat(&camera);		
 		}
 		if (key[SDL_SCANCODE_LSHIFT])
 			speed = 0.2;
 		else
 			speed = 0.1;
-			
+		translate[13] = camera.pos.y;
+		translate[14] = camera.pos.z;
+		translate[12] = camera.pos.x;
+		look = cam_lookat(&camera);
+		
 		//SDL_WarpMouseInWindow(win, WIN_X / 2, WIN_Y / 2);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		look = cam_lookat(&camera);
 		//free(modelview);
 		//modelview = mat4_id_new();
 //		printf("%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n\n",  look[0], look[1], look[2], look[3], look[4], look[5], look[6], look[7], look[8], look[9], look[10], look[11], look[12], look[13], look[14], look[15]);
@@ -194,7 +198,7 @@ int    main(int ac, char **av)
 				glUniformMatrix4fv(glGetUniformLocation(prog, "look"), 1, GL_FALSE, look);
 				glBindTexture(GL_TEXTURE_CUBE_MAP, id_texture);
 					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, main_ebo);
-						glDrawElements(GL_TRIANGLE_STRIP, 14, GL_UNSIGNED_INT, (GLvoid*)0);
+						glDrawArrays(GL_TRIANGLES, 0, 36);
 					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 					//glDrawArrays(GL_TRIANGLES, 0, 72);
 				glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
@@ -220,6 +224,7 @@ int    main(int ac, char **av)
 			frame = 0;
 		}
 		frame++;
+		free(look);
 	}
     return (0);
 }

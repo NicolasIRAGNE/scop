@@ -6,7 +6,7 @@
 /*   By: niragne <niragne@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/14 11:18:38 by niragne           #+#    #+#             */
-/*   Updated: 2018/03/17 18:16:25 by niragne          ###   ########.fr       */
+/*   Updated: 2018/03/19 15:34:31 by niragne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ extern GLuint   main_ebo;
 typedef struct s_bmp_info t_bmp_info;
 typedef struct s_bmp_header t_bmp_header;
 typedef struct s_bmp t_bmp;
+typedef struct s_obj t_obj;
 typedef int		t_int32;
 typedef unsigned int		t_uint32;
 typedef unsigned short int		t_uint16;
@@ -45,6 +46,8 @@ GLuint      init_skybox_buffer(void);
 GLuint		create_prog(char *vertex_shader, char *fragment_shader);
 int         shader_build(GLuint *shader, GLenum type, char *file);
 t_bmp		*load_bmp(char *name);
+t_obj		*load_model(char *name);
+GLuint		init_buffer_model(t_obj *obj);
 
 struct		s_bmp_header
 {
@@ -76,6 +79,18 @@ struct	s_bmp
 	t_bmp_header	header;
 	t_bmp_info		info;
 	void		*pixels;
+};
+
+struct	s_obj
+{
+	float	*vertices;
+	size_t	nb_vertices;
+	float	*coord_texture;
+	size_t	nb_coords;
+	float	*normal;
+	size_t	nb_normal;
+	int		*face;
+	size_t	nb_face;
 };
 
 #endif

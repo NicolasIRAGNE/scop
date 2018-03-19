@@ -15,65 +15,67 @@
 t_bmp *reverse(t_bmp *img)
 {
     void    *tmp;
-    int i = img->info.h - 1;
-    int pitch = img->info.w * img->info.bits / 8;
+    void    *tmp2;
+    int     pitch = img->info.w * img->info.bits / 8;
+    int     j = 0;
     
+    tmp2 = img->pixels;
+    img->pixels = img->pixels + pitch * (img->info.h - 1);
     if (!(tmp = malloc(img->info.imagesize)))
         exit(1);
-    while (i > 0)
+    while (j < img->info.h)
     {
-        memcpy(tmp + i * pitch, img->pixels + (img->info.h - i) * pitch, pitch);
-        i--;
+        memcpy(tmp, img->pixels, pitch);
+        tmp += pitch;
+        img->pixels -= pitch;
+        j++;
     }
+    tmp -= j * pitch;
     img->pixels = tmp;
+    free(tmp2);
     return (img);
 } 
-/*
+
 t_bmp   *load_bmp(char *name)
 {
     t_bmp    *ret;
-    SDL_Surface *testos;
     int rd;
     int fd;
+    int flag;
 
+	flag = 0;
     ret = malloc(sizeof(t_bmp));
-    testos = IMG_Load(name);
     if ((fd = open(name, O_RDONLY)) == -1)
         exit(printf("failed to open %s\n", name));
     rd = read(fd, (char*)&ret->header + 2, 14);
     if (rd == -1)
         exit(printf("failed to read %s\n", name));
-    else if (rd != 14)
+    else if (rd != 14 || ret->header.type != 0x4d42)
         exit(printf("format error: %s\n", name));
     rd = read(fd, &ret->info, 40);
     if (rd == -1)
         exit(printf("failed to read %s\n", name));
     else if (rd != 40)
         exit(printf("format error: %s\n", name));
-    char buf[6000];
-    read(fd, buf, ret->header.offset - 54);
     if (ret->info.h < 0)
-        ret->info.h = -ret->info.h;
+    {
+		ret->info.h = -ret->info.h;
+		flag = 1;
+    }
     if (!ret->info.imagesize)
-        ret->info.imagesize = ret->info.h * ret->info.w;
-    ret->pixels = malloc(ret->info.imagesize);
+		ret->info.imagesize = ret->info.h * ret->info.w;
+    if (!(ret->pixels = malloc(ret->info.imagesize)))
+		exit(printf("malloc error"));
+    read(fd, ret->pixels, ret->header.offset - 54);
     rd = read(fd, ret->pixels, ret->info.imagesize);
-    printf("%d\n", rd);
-    // exit(1);
-    // t_uint32 i = 0;
-    // while (i < ret->info.imagesize / 4)
-    // {
-        // if ((ret->pixels[i] & 0xff) > 0x80)
-            // ret->pixels[i] = 0;
-        // i++;
-    // }
-    reverse(ret);
+	if (flag)
+    	reverse(ret);
     close(fd);
     return (ret);
-}*/
+}
 
 
-t_bmp   *load_bmp(char *name)
+/*t_bmp   *load_bmp(char *name)
 {
     t_bmp   *ret;
     char    *map;
@@ -86,7 +88,7 @@ t_bmp   *load_bmp(char *name)
         exit(4);
     }
     fstat(fd, &buf);
-    if (!(map = mmap(NULL, buf.st_size, PROT_WRITE, MAP_PRIVATE, fd, 0)))
+    if ((map = mmap(NULL, buf.st_size, PROT_WRITE, MAP_PRIVATE, fd, 0)) == MAP_FAILED)
     {
         printf("error mmap %s\n", map);
         exit(5);
@@ -94,5 +96,4 @@ t_bmp   *load_bmp(char *name)
     ret = (t_bmp*)(map - 2);
     ret->pixels = map + ret->header.offset;
     return (ret);
-}
-
+}*/
