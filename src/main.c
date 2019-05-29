@@ -6,7 +6,7 @@
 /*   By: niragne <niragne@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/14 11:17:01 by niragne           #+#    #+#             */
-/*   Updated: 2018/03/19 18:03:45 by niragne          ###   ########.fr       */
+/*   Updated: 2019/03/31 19:51:45 by niragne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ int    main(int ac, char **av)
 	t_bmp	*skybox_texture[6];
 	GLuint		skybox_texture_id;
 	GLuint		skybox_location;
+	float		fov = 70.f;
 	// Camera
 	t_cam camera;
 
@@ -63,7 +64,7 @@ int    main(int ac, char **av)
 //	projection[0] = (float)WIN_Y / (float)WIN_X;
 //	projection[10] = 0.1f;
 	translate = mat4_id_new();
-	projection = mat4_perspective((70.f / 360.f * 2.f * M_PI), ((float)WIN_X / (float)WIN_Y), 0.1f, 200.f);
+	projection = mat4_perspective((fov / 360.f * 2.f * M_PI), ((float)WIN_X / (float)WIN_Y), 0.1f, 200.f);
 	//projection = mat4_vec3_mult(projection, ((t_vec3){1, 1, -1.00}));
 	modelview = mat4_id_new();
 	prog = create_prog("shader/truc.vert", "shader/truc.frag");
@@ -93,18 +94,18 @@ int    main(int ac, char **av)
 			j++;
 		}
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-	 skybox_texture[0] = load_bmp("skybox/XP.bmp");
-	 skybox_texture[1] = load_bmp("skybox/XN.bmp");
-	 skybox_texture[2] = load_bmp("skybox/YP.bmp");
-	 skybox_texture[3] = load_bmp("skybox/YN.bmp");
-	 skybox_texture[4] = load_bmp("skybox/ZP.bmp");
-	 skybox_texture[5] = load_bmp("skybox/ZN.bmp");
-	//skybox_texture[0] = load_bmp("/Users/niragne/Desktop/ASTRONAU.bmp");
-	//skybox_texture[1] = load_bmp("/Users/niragne/Desktop/ASTRONAU.bmp");
-	//skybox_texture[2] = load_bmp("/Users/niragne/Desktop/ASTRONAU.bmp");
-	//skybox_texture[3] = load_bmp("/Users/niragne/Desktop/ASTRONAU.bmp");
-	//skybox_texture[4] = load_bmp("/Users/niragne/Desktop/ASTRONAU.bmp");
-	//skybox_texture[5] = load_bmp("/Users/niragne/Desktop/ASTRONAU.bmp");
+	skybox_texture[0] = load_bmp("skybox/XP.bmp");
+	skybox_texture[1] = load_bmp("skybox/XN.bmp");
+	skybox_texture[2] = load_bmp("skybox/YP.bmp");
+	skybox_texture[3] = load_bmp("skybox/YN.bmp");
+	skybox_texture[4] = load_bmp("skybox/ZP.bmp");
+	skybox_texture[5] = load_bmp("skybox/ZN.bmp");
+	// skybox_texture[0] = load_bmp("/Users/niragne/Downloads/bmp.bmp");
+	// skybox_texture[1] = load_bmp("/Users/niragne/Downloads/bmp.bmp");
+	// skybox_texture[2] = load_bmp("/Users/niragne/Downloads/bmp.bmp");
+	// skybox_texture[3] = load_bmp("/Users/niragne/Downloads/bmp.bmp");
+	// skybox_texture[4] = load_bmp("/Users/niragne/Downloads/bmp.bmp");
+	// skybox_texture[5] = load_bmp("/Users/niragne/Downloads/bmp.bmp");
 	if (!skybox_texture[0] || !skybox_texture[1] || !skybox_texture[2] || !skybox_texture[3] || !skybox_texture[4] || !skybox_texture[5])
 		exit(1);
 	glGenTextures(1, &skybox_texture_id);
@@ -155,9 +156,19 @@ int    main(int ac, char **av)
 			}
 		}
 
-		if (key[SDL_SCANCODE_W])
+		if (key[SDL_SCANCODE_SPACE])
 		{
 			cam_move_up(&camera, speed);
+			look = cam_lookat(&camera);
+		}
+		if (key[SDL_SCANCODE_LCTRL])
+		{
+			cam_move_down(&camera, speed);
+			look = cam_lookat(&camera);
+		}
+		if (key[SDL_SCANCODE_W])
+		{
+			cam_move_forward(&camera, speed);
 			look = cam_lookat(&camera);			
 		}
 		if (key[SDL_SCANCODE_A])
@@ -167,7 +178,7 @@ int    main(int ac, char **av)
 		}
 		if (key[SDL_SCANCODE_S])
 		{
-			cam_move_down(&camera, speed);
+			cam_move_backward(&camera, speed);
 			look = cam_lookat(&camera);
 		}
 		if (key[SDL_SCANCODE_D])
@@ -176,7 +187,7 @@ int    main(int ac, char **av)
 			look = cam_lookat(&camera);		
 		}
 		if (key[SDL_SCANCODE_LSHIFT])
-			speed = 0.2;
+			speed = 0.3;
 		else
 			speed = 0.1;
 		translate[13] = camera.pos.y;
@@ -184,6 +195,19 @@ int    main(int ac, char **av)
 		translate[12] = camera.pos.x;
 		look = cam_lookat(&camera);
 		
+		if (souri[0])
+		{
+			fov+=1;
+			projection = mat4_perspective((fov / 360.f * 2.f * M_PI), ((float)WIN_X / (float)WIN_Y), 0.1f, 200.f);
+		}
+
+		if (souri[1])
+		{
+			fov-=1;
+			projection = mat4_perspective((fov / 360.f * 2.f * M_PI), ((float)WIN_X / (float)WIN_Y), 0.1f, 200.f);
+
+		}
+
 		//SDL_WarpMouseInWindow(win, WIN_X / 2, WIN_Y / 2);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//free(modelview);
@@ -200,7 +224,7 @@ int    main(int ac, char **av)
 					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, main_ebo);
 						glDrawArrays(GL_TRIANGLES, 0, 36);
 					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-					//glDrawArrays(GL_TRIANGLES, 0, 72);
+					// 	glDrawArrays(GL_TRIANGLES, 0, 72);
 				glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 			glBindVertexArray(0);
 		glUseProgram(prog_cursor);

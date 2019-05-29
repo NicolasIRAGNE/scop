@@ -63,13 +63,25 @@ t_bmp   *load_bmp(char *name)
 		flag = 1;
     }
     if (!ret->info.imagesize)
-		ret->info.imagesize = ret->info.h * ret->info.w;
+    {
+		ret->info.imagesize = ret->info.h * ret->info.w * 3;
+    }
     if (!(ret->pixels = malloc(ret->info.imagesize)))
 		exit(printf("malloc error"));
-    read(fd, ret->pixels, ret->header.offset - 54);
+    printf("FILE NAME %s FILE DIMS %d * %d, SIZE %d\n", name, ret->info.w, ret->info.h, ret->info.imagesize);
+    char buf[512];
+    read(fd, buf, ret->header.offset - 54);
     rd = read(fd, ret->pixels, ret->info.imagesize);
-	if (flag)
-    	reverse(ret);
+	int bite = 0;
+    while (bite < rd)
+    {
+      //  printf("%x ", ((unsigned char *) ret->pixels) [bite]);
+        bite++;
+    }
+    printf("\n");
+    // exit(1);
+    //if (flag)
+    //	reverse(ret);
     close(fd);
     return (ret);
 }

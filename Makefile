@@ -6,7 +6,7 @@
 #    By: niragne <niragne@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/02/14 17:55:23 by niragne           #+#    #+#              #
-#    Updated: 2018/03/19 15:25:42 by niragne          ###   ########.fr        #
+#    Updated: 2019/02/20 16:17:46 by niragne          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ NAME = scop
 
 CC = gcc
 
-CFLAGS = -g -Wall -Wextra -Werror #-fsanitize=address
+CFLAGS = -g -Wall -Wextra -Werror -fsanitize=address
 
 INCL_DIR	= include
 INCL		= $(INCL_DIR)/ft_scop.h

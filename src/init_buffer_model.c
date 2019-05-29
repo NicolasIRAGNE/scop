@@ -6,7 +6,7 @@
 /*   By: niragne <niragne@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/19 15:20:18 by niragne           #+#    #+#             */
-/*   Updated: 2018/03/19 18:00:34 by niragne          ###   ########.fr       */
+/*   Updated: 2018/03/20 14:54:37 by niragne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,20 +46,13 @@ GLuint init_buffer_model(t_obj *obj)
                 printf("{%d %d %d} {%f %f %f}\n", vertexIndex, vertexIndex2, vertexIndex3, obj->vertices[vertexIndex - 1], obj->vertices[vertexIndex2 - 1], obj->vertices[vertexIndex2 - 1]);
                 i += 3;
             }
-            //glUnmapBuffer(GL_ARRAY_BUFFER);
+            glUnmapBuffer(GL_ARRAY_BUFFER);
         	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
         	glEnableVertexAttribArray(0); //j'active (il est activé (c'est bien))
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     glGenBuffers(1, &main_ebo);
-    i = 0;
-    printf("\n");
-    while (i < 108)
-    {
-        printf("%f ", trucs[i]);
-        i++;
-    }
     // exit(1);
     return (vao);
 }

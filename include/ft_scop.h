@@ -6,7 +6,7 @@
 /*   By: niragne <niragne@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/14 11:18:38 by niragne           #+#    #+#             */
-/*   Updated: 2018/03/19 15:34:31 by niragne          ###   ########.fr       */
+/*   Updated: 2018/03/25 19:28:51 by niragne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@
 # include "SDL2/SDL.h"
 # include "SDL2/SDL_image.h"
 # include <OpenGL/gl3.h>
-# include <CoreFoundation/CoreFoundation.h>
 # include <sys/mman.h>
 # include <sys/stat.h>
 # define GL3_PROTOTYPE 1
